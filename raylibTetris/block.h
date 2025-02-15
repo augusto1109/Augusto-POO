@@ -7,6 +7,7 @@
 class Block {
   public:
     Block();
+    void Draw();
     int id;
     std::map<int, std::vector<Position>> cells;
 
