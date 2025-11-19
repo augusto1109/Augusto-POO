@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <functional>
 
-// Enums para estados do jogo
 enum GameState {
     MENU,
     PLAYING,
@@ -201,14 +200,12 @@ int main() {
     SetMusicVolume(levelMusic, maxMusicVolumeLevel * (musicVolumeLevel / 6.0f));
     SetMusicVolume(bossMusic, maxMusicVolumeBoss * (musicVolumeLevel / 6.0f));
     
-    // Carregar sons SFX
     Sound defaultShootSound = LoadSound("assets/sounds/sfx/defaultshoot.wav");
     Sound dmgSound = LoadSound("assets/sounds/sfx/dmgsound.mp3");
     Sound deathSound = LoadSound("assets/sounds/sfx/deathsound.wav");
     Sound reloadSound = LoadSound("assets/sounds/sfx/reloadsound.wav");
     Sound menuButtonSound = LoadSound("assets/sounds/sfx/menusoundbuttons.wav");
     
-    // Configurar volume inicial dos SFX (nível 2 de 6)
     float currentSFXVolume = maxSFXVolume * (sfxVolumeLevel / 6.0f);
     SetSoundVolume(defaultShootSound, currentSFXVolume);
     SetSoundVolume(dmgSound, currentSFXVolume);
@@ -272,7 +269,6 @@ int main() {
     float reloadTimer = 0.0f;
     float reloadDuration = baseReloadTime - ((reloadSpeedLvl - 1) * 0.1f);
     
-    // Sistema de munições especiais
     AmmoItem ammoItems[4];
     
     ammoItems[0].rarity = AMMO_COMMON;
@@ -349,16 +345,13 @@ int main() {
             break;
         }
         
-        // ===== MENU PRINCIPAL =====
         if (gameState == MENU) {
-            // Tocar música do menu
             if (currentMusic != &menuMusic) {
                 if (currentMusic != nullptr) StopMusicStream(*currentMusic);
                 PlayMusicStream(menuMusic);
                 currentMusic = &menuMusic;
             }
             
-            // Navegação do menu
             if (IsKeyPressed(KEY_DOWN)) {
                 selectedMenuOption = (selectedMenuOption + 1) % 5;
                 if (!sfxMuted) PlaySound(menuButtonSound);
@@ -407,8 +400,7 @@ int main() {
             }
         }
         
-    // ===== LOJA =====
-    else if (gameState == SHOP) {
+        else if (gameState == SHOP) {
         if (currentMusic != &menuMusic) {
             if (currentMusic != nullptr) StopMusicStream(*currentMusic);
             PlayMusicStream(menuMusic);
@@ -448,12 +440,12 @@ int main() {
                         if (!sfxMuted) PlaySound(menuButtonSound);
                         player.coins -= damageCost;
                         damageLvl++;
-                        damageCost += 30; // Aumenta custo
+                        damageCost += 30;
                         purchased = true;
                     }
                     break;
-                case 1: // Velocidade de Recarga
-                    if (player.coins >= reloadSpeedCost && reloadSpeedLvl < 5) { // Max 5 níveis
+                case 1:
+                    if (player.coins >= reloadSpeedCost && reloadSpeedLvl < 5) {
                         if (!sfxMuted) PlaySound(menuButtonSound);
                         player.coins -= reloadSpeedCost;
                         reloadSpeedLvl++;
@@ -462,7 +454,7 @@ int main() {
                         purchased = true;
                     }
                     break;
-                case 2: // Velocidade da Bala
+                case 2:
                     if (player.coins >= bulletSpeedCost) {
                         if (!sfxMuted) PlaySound(menuButtonSound);
                         player.coins -= bulletSpeedCost;
@@ -471,7 +463,7 @@ int main() {
                         purchased = true;
                     }
                     break;
-                case 3: // Capacidade de Munição
+                case 3:
                     if (player.coins >= ammoCapacityCost) {
                         if (!sfxMuted) PlaySound(menuButtonSound);
                         player.coins -= ammoCapacityCost;
@@ -482,7 +474,7 @@ int main() {
                         purchased = true;
                     }
                     break;
-                case 4: // Vida Máxima
+                case 4:
                     if (player.coins >= healthCost) {
                         if (!sfxMuted) PlaySound(menuButtonSound);
                         player.coins -= healthCost;
@@ -490,7 +482,7 @@ int main() {
                         int newMaxHealth = baseHealth + ((healthLvl - 1) * 20);
                         int healthDiff = newMaxHealth - player.maxHealth;
                         player.maxHealth = newMaxHealth;
-                        player.health += healthDiff; // Aumenta vida atual também
+                        player.health += healthDiff;
                         healthCost += 30;
                         purchased = true;
                     }
@@ -906,23 +898,21 @@ int main() {
                     boss.position = { mapWidth / 2, 100.0f };
                     boss.texture = enemyTexture;
                     boss.rotation = 90.0f;
-                    boss.xpDrop = 100 + (bossesDefeated * 20); // XP aumenta com dificuldade
-                    boss.coinDrop = 50 + (bossesDefeated * 10); // Moedas aumentam com dificuldade
+                    boss.xpDrop = 100 + (bossesDefeated * 20);
+                    boss.coinDrop = 50 + (bossesDefeated * 10);
                     enemies.push_back(boss);
                     bossSpawned = true;
                 }
                 
-                // Verificar se boss foi derrotado
                 if (bossSpawned && enemies.empty()) {
                     isBossWave = false;
                     bossSpawned = false;
-                    bossesDefeated++; // Incrementar contador de bosses
+                    bossesDefeated++;
                     wave++;
                     enemiesKilled = 0;
                     enemiesSpawned = 0;
                     score += 100 + (bossesDefeated * 50);
                     
-                    // Spawnar baú próximo ao jogador após derrotar o boss
                     Chest chest;
                     chest.radius = 40.0f;
                     chest.active = true;
@@ -974,7 +964,6 @@ int main() {
                         enemy.xpDrop = 10 + (bossesDefeated * 2);
                         enemy.coinDrop = 5 + (bossesDefeated * 2);
                         
-                        // Spawn em posição aleatória nas bordas do mapa
                         int side = GetRandomValue(0, 3);
                         switch (side) {
                             case 0:
@@ -1009,13 +998,11 @@ int main() {
             if (pickupSpawnTimer >= pickupSpawnInterval) {
                 pickupSpawnTimer = 0.0f;
                 
-                // Chance de 70% de spawnar um pickup
                 if (GetRandomValue(0, 100) < 70) {
                     Pickup pickup;
                     pickup.radius = 20.0f;
                     pickup.active = true;
                     
-                    // 50% chance de ser vida, 50% loot
                     pickup.type = (GetRandomValue(0, 1) == 0) ? PICKUP_HEALTH : PICKUP_LOOT;
                     pickup.texture = (pickup.type == PICKUP_HEALTH) ? healthPickupTexture : lootPickupTexture;
                     
@@ -1101,11 +1088,9 @@ int main() {
                             }
                             
                             if (alreadyHas) {
-                                // Converter em moedas (50-150 baseado na raridade)
                                 int coinReward = 50 + (itemIndex * 35); // Common: 50, Uncommon: 85, Rare: 120, Legendary: 155
                                 player.coins += coinReward;
                             } else {
-                                // Adicionar munição ao primeiro slot vazio
                                 for (int slot = 0; slot < 4; slot++) {
                                     if (playerAmmoInventory[slot] == -1) {
                                         playerAmmoInventory[slot] = itemIndex;
@@ -1116,12 +1101,10 @@ int main() {
                         }
                     }
                     
-                    // Revelação do item (mostrar por 3 segundos)
                     if (chests[i].state == CHEST_OPENED) {
                         chests[i].revealTimer += deltaTime;
                         chests[i].itemRevealed = true;
                         
-                        // Remover baú após 5 segundos
                         if (chests[i].revealTimer >= 5.0f) {
                             chests[i].active = false;
                         }
@@ -1129,19 +1112,16 @@ int main() {
                 }
             }
             
-            // Remover baús inativos
             chests.erase(
                 std::remove_if(chests.begin(), chests.end(),
                     [](const Chest& c) { return !c.active; }),
                 chests.end()
             );
             
-            // Atualizar inimigos e verificar colisões
             bool anyEnemyTouchingPlayer = false;
             
             for (size_t i = 0; i < enemies.size(); i++) {
                 if (enemies[i].active) {
-                    // Mover em direção ao jogador
                     Vector2 direction = { player.position.x - enemies[i].position.x, 
                                          player.position.y - enemies[i].position.y };
                     float len = sqrt(direction.x * direction.x + direction.y * direction.y);
@@ -1151,16 +1131,13 @@ int main() {
                         direction.y /= len;
                     }
                     
-                    // Calcular rotação do inimigo
                     enemies[i].rotation = atan2f(direction.y, direction.x) * RAD2DEG;
                     
-                    // Movimento do inimigo
                     Vector2 newPos = {
                         enemies[i].position.x + direction.x * enemies[i].speed * deltaTime,
                         enemies[i].position.y + direction.y * enemies[i].speed * deltaTime
                     };
                     
-                    // Verificar colisão com jogador ANTES de mover
                     float distToPlayer = sqrt(
                         (newPos.x - player.position.x) * (newPos.x - player.position.x) +
                         (newPos.y - player.position.y) * (newPos.y - player.position.y)
@@ -1170,19 +1147,15 @@ int main() {
                     if (distToPlayer < (enemies[i].radius + player.radius)) {
                         anyEnemyTouchingPlayer = true;
                         
-                        // Não deixar inimigo atravessar o jogador
-                        // Posicionar inimigo na borda do círculo do jogador
                         float targetDist = enemies[i].radius + player.radius + 1.0f;
                         if (len > 0) {
                             enemies[i].position.x = player.position.x - direction.x * targetDist;
                             enemies[i].position.y = player.position.y - direction.y * targetDist;
                         }
                     } else {
-                        // Mover normalmente se não colidiu
                         enemies[i].position = newPos;
                     }
                     
-                    // Colisão entre inimigos (evitar overlap)
                     for (size_t j = i + 1; j < enemies.size(); j++) {
                         if (enemies[j].active) {
                             float dx = enemies[j].position.x - enemies[i].position.x;
@@ -1191,7 +1164,6 @@ int main() {
                             float minDist = enemies[i].radius + enemies[j].radius;
                             
                             if (dist < minDist && dist > 0) {
-                                // Empurrar inimigos para longe um do outro
                                 float overlap = (minDist - dist) * 0.5f;
                                 float nx = dx / dist;
                                 float ny = dy / dist;
@@ -1206,11 +1178,10 @@ int main() {
                 }
             }
             
-            // Sistema de dano contínuo quando inimigo está tocando jogador
             if (anyEnemyTouchingPlayer) {
                 enemyDamageTimer += deltaTime;
                 if (enemyDamageTimer >= enemyDamageInterval) {
-                    int damage = 10; // Dano base dos inimigos
+                    int damage = 10;
                     
                     // Verificar se há boss tocando para aumentar dano
                     for (size_t i = 0; i < enemies.size(); i++) {
@@ -1220,7 +1191,7 @@ int main() {
                                 (enemies[i].position.y - player.position.y) * (enemies[i].position.y - player.position.y)
                             );
                             if (dist < (enemies[i].radius + player.radius)) {
-                                damage = 15; // Boss causa mais dano
+                                damage = 15;
                                 break;
                             }
                         }
@@ -1229,7 +1200,6 @@ int main() {
                     player.health -= damage;
                     enemyDamageTimer = 0.0f;
                     
-                    // Tocar som de dano
                     if (!sfxMuted) PlaySound(dmgSound);
                     
                     if (player.health <= 0) {
@@ -1239,11 +1209,9 @@ int main() {
                     }
                 }
             } else {
-                // Resetar timer quando não há colisão
                 enemyDamageTimer = 0.0f;
             }
             
-            // Verificar colisões projéteis-inimigos
             for (size_t i = 0; i < projectiles.size(); i++) {
                 if (projectiles[i].active) {
                     for (size_t j = 0; j < enemies.size(); j++) {
@@ -1253,30 +1221,26 @@ int main() {
                                 projectiles[i].active = false;
                                 enemies[j].health -= projectiles[i].damage;
                                 
-                                // Verificar se inimigo morreu
                                 if (enemies[j].health <= 0) {
                                     enemies[j].active = false;
                                     enemiesKilled++;
-                                    totalEnemiesKilled++; // Incrementar contador total
+                                    totalEnemiesKilled++;
                                     
-                                    // Tocar som de morte
                                     if (!sfxMuted) PlaySound(deathSound);
                                     
-                                    // Ganhar XP e moedas
                                     player.xp += enemies[j].xpDrop;
                                     player.coins += enemies[j].coinDrop;
                                     
-                                    // Level up
                                     while (player.xp >= player.xpToNextLevel) {
                                         player.xp -= player.xpToNextLevel;
                                         player.level++;
-                                        player.xpToNextLevel = player.level * 100; // XP necessário aumenta com nível
+                                        player.xpToNextLevel = player.level * 100;
                                     }
                                     
                                     if (enemies[j].isBoss) {
-                                        score += 200; // Pontos extras pelo boss
+                                        score += 200;
                                     } else {
-                                        score += 10 + (wave * 2); // Mais pontos em waves altas
+                                        score += 10 + (wave * 2);
                                     }
                                 }
                             }
@@ -1285,16 +1249,13 @@ int main() {
                 }
             }
             
-            // Limpar vetores de objetos inativos
             projectiles.erase(std::remove_if(projectiles.begin(), projectiles.end(),
                 [](const Projectile& p) { return !p.active; }), projectiles.end());
             enemies.erase(std::remove_if(enemies.begin(), enemies.end(),
                 [](const Enemy& e) { return !e.active; }), enemies.end());
         }
         
-        // ===== GAME OVER =====
         else if (gameState == PLAYING && gameOver) {
-            // Reiniciar jogo
             if (IsKeyPressed(KEY_SPACE)) {
                 gameOver = false;
                 score = 0;
@@ -1312,7 +1273,6 @@ int main() {
                 enemySpawnTimer = 0.0f;
             }
             
-            // Voltar ao menu
             if (IsKeyPressed(KEY_Q) || IsKeyPressed(KEY_BACKSPACE)) {
                 gameState = MENU;
                 selectedMenuOption = 0;
@@ -1323,22 +1283,17 @@ int main() {
             }
         }
         
-        // Renderização
         BeginDrawing();
         ClearBackground(DARKGRAY);
         
-        // ===== RENDERIZAR MENU PRINCIPAL =====
         if (gameState == MENU) {
-            // Desenhar background
             Rectangle bgSrc = { 0, 0, (float)bgMenu.width, (float)bgMenu.height };
             Rectangle bgDst = { 0, 0, (float)screenWidth, (float)screenHeight };
             DrawTexturePro(bgMenu, bgSrc, bgDst, {0, 0}, 0.0f, WHITE);
             
-            // Título
             DrawText("TOP-DOWN SHOOTER", screenWidth / 2 - 200, 80, 40, WHITE);
             DrawText("POO2 - Projeto", screenWidth / 2 - 120, 130, 20, GRAY);
             
-            // Opções do menu
             const char* menuOptions[] = { "JOGAR", "LOJA", "STATUS", "CONFIGURACOES", "SAIR" };
             int startY = 220;
             int spacing = 60;
@@ -1355,35 +1310,28 @@ int main() {
                 DrawText(menuOptions[i], screenWidth / 2 - textWidth / 2, startY + (i * spacing), fontSize, textColor);
             }
             
-            // Instruções
             DrawText("Use SETAS para navegar | ENTER para selecionar", screenWidth / 2 - 230, screenHeight - 40, 16, DARKGRAY);
         }
         
-        // ===== RENDERIZAR LOJA =====
         else if (gameState == SHOP) {
-            // Desenhar background
             Rectangle bgSrc = { 0, 0, (float)bgLightBrick.width, (float)bgLightBrick.height };
             Rectangle bgDst = { 0, 0, (float)screenWidth, (float)screenHeight };
             DrawTexturePro(bgLightBrick, bgSrc, bgDst, {0, 0}, 0.0f, WHITE);
             
-            // Título fixo no topo
             float titleScale = 2.5f;
             int titleX = screenWidth / 2 - 80;
             int titleY = 30;
             DrawText("LOJA DE UPGRADES", titleX, titleY, 32, GOLD);
             
-            // Mostrar moedas e nível do jogador no topo
             DrawText(TextFormat("MOEDAS: %d", player.coins), 50, 30, 24, YELLOW);
             DrawText(TextFormat("NIVEL: %d", player.level), screenWidth - 180, 30, 24, SKYBLUE);
             DrawText(TextFormat("XP: %d/%d", player.xp, player.xpToNextLevel), screenWidth - 180, 55, 18, LIGHTGRAY);
             
-            // Área de conteúdo com scroll
             int contentStartY = 120;
             int baseY = contentStartY - shopScrollOffset;
             int sectionWidth = 1000;
             int sectionX = (screenWidth - sectionWidth) / 2;
             
-            // Array com informações dos upgrades
             const char* upgradeNames[] = { "DANO", "VELOCIDADE DE RECARGA", "VELOCIDADE DA BALA", "CAPACIDADE DE MUNICAO", "VIDA MAXIMA", "VELOCIDADE DE DISPARO" };
             int upgradeLevels[] = { damageLvl, reloadSpeedLvl, bulletSpeedLvl, ammoCapacityLvl, healthLvl, fireRateLvl };
             int upgradeCosts[] = { damageCost, reloadSpeedCost, bulletSpeedCost, ammoCapacityCost, healthCost, fireRateCost };
@@ -1396,32 +1344,25 @@ int main() {
                 TextFormat("%.2fs (-0.05s/lvl)", baseFireRate - ((fireRateLvl - 1) * 0.05f))
             };
             
-            // Renderizar cada upgrade
             for (int i = 0; i < 6; i++) {
                 int upgradeY = baseY + (i * 145);
                 
-                // Background do upgrade
                 Rectangle bgSrc = { 0, 0, (float)whiteSquareUI.width, (float)whiteSquareUI.height };
                 Rectangle bgDst = { (float)sectionX, (float)upgradeY, (float)sectionWidth, 130.0f };
                 DrawTexturePro(whiteSquareUI, bgSrc, bgDst, {0, 0}, 0.0f, WHITE);
                 
-                // Borda (destacar se selecionado)
                 Color borderColor = (i == selectedShopOption) ? GOLD : BLACK;
                 float borderThickness = (i == selectedShopOption) ? 5.0f : 3.0f;
                 DrawRectangleLinesEx({ (float)sectionX, (float)upgradeY, (float)sectionWidth, 130.0f }, borderThickness, borderColor);
                 
-                // Nome do upgrade
                 DrawText(upgradeNames[i], sectionX + 20, upgradeY + 15, 26, BLACK);
                 
-                // Nível atual
                 DrawText(TextFormat("NIVEL: %d", upgradeLevels[i]), sectionX + 20, upgradeY + 50, 20, DARKGRAY);
                 
-                // Valor atual
                 DrawText(TextFormat("VALOR: %s", upgradeValues[i]), sectionX + 20, upgradeY + 80, 20, DARKBLUE);
                 
-                // Custo do próximo upgrade
                 bool canAfford = player.coins >= upgradeCosts[i];
-                bool isMaxed = (i == 1 && reloadSpeedLvl >= 5) || (i == 5 && fireRateLvl >= 8); // Recarga e fire rate têm limite
+                bool isMaxed = (i == 1 && reloadSpeedLvl >= 5) || (i == 5 && fireRateLvl >= 8);
                 
                 if (isMaxed) {
                     DrawText("MAXIMO", sectionX + 700, upgradeY + 50, 24, RED);
@@ -1429,11 +1370,9 @@ int main() {
                     Color costColor = canAfford ? GREEN : RED;
                     DrawText(TextFormat("CUSTO: %d", upgradeCosts[i]), sectionX + 700, upgradeY + 50, 22, costColor);
                     
-                    // Ícone de moeda
                     DrawCircle(sectionX + 690, upgradeY + 62, 8, GOLD);
                 }
                 
-                // Instrução de compra (se selecionado)
                 if (i == selectedShopOption) {
                     if (!isMaxed) {
                         DrawText(canAfford ? "PRESSIONE ENTER/ESPACO PARA COMPRAR" : "MOEDAS INSUFICIENTES", 
@@ -1442,20 +1381,16 @@ int main() {
                 }
             }
             
-            // Rodapé fixo com instruções
             DrawRectangle(0, screenHeight - 80, screenWidth, 80, Fade(BLACK, 0.8f));
             DrawText("SETAS: Navegar | ENTER/ESPACO: Comprar | Q/BACKSPACE: Voltar ao Menu", 
                     screenWidth / 2 - 350, screenHeight - 50, 18, WHITE);
         }
         
-        // ===== RENDERIZAR STATUS =====
         else if (gameState == STATUS) {
-            // Desenhar background
             Rectangle bgSrc = { 0, 0, (float)bgLightBrick.width, (float)bgLightBrick.height };
             Rectangle bgDst = { 0, 0, (float)screenWidth, (float)screenHeight };
             DrawTexturePro(bgLightBrick, bgSrc, bgDst, {0, 0}, 0.0f, WHITE);
             
-            // Título fixo no topo
             DrawText("ESTATISTICAS DO JOGADOR", screenWidth / 2 - 250, 30, 36, BLACK);
             
             // Área de conteúdo com scroll
@@ -1463,11 +1398,9 @@ int main() {
             int sectionWidth = 1000;
             int sectionX = (screenWidth - sectionWidth) / 2;
             
-            // ===== SEÇÃO 1: INFORMAÇÕES BÁSICAS =====
             int section1Y = contentStartY;
             int section1Height = 180;
             
-            // Background branco da seção
             Rectangle whiteBgSrc1 = { 0, 0, (float)whiteSquareUI.width, (float)whiteSquareUI.height };
             Rectangle whiteBgDst1 = { (float)sectionX, (float)section1Y, (float)sectionWidth, (float)section1Height };
             DrawTexturePro(whiteSquareUI, whiteBgSrc1, whiteBgDst1, {0, 0}, 0.0f, WHITE);
@@ -1479,24 +1412,19 @@ int main() {
             DrawText(TextFormat("NIVEL: %d", player.level), sectionX + 30, section1Y + 60, 24, DARKBLUE);
             DrawText(TextFormat("XP: %d / %d", player.xp, player.xpToNextLevel), sectionX + 300, section1Y + 60, 24, DARKBLUE);
             
-            // Top Score
             DrawText(TextFormat("TOP SCORE: %d", topScore), sectionX + 650, section1Y + 60, 24, GOLD);
             
-            // Moedas com ícone
             DrawText("MOEDAS:", sectionX + 30, section1Y + 100, 24, DARKGREEN);
             DrawCircle(sectionX + 170, section1Y + 112, 12, GOLD);
             DrawText(TextFormat("%d", player.coins), sectionX + 190, section1Y + 100, 24, DARKGREEN);
             
-            // Tempo jogado (converter para minutos:segundos)
             int minutes = (int)(gameTime / 60);
             int seconds = (int)(gameTime) % 60;
             DrawText(TextFormat("TEMPO JOGADO: %02d:%02d", minutes, seconds), sectionX + 30, section1Y + 140, 24, DARKPURPLE);
             
-            // Inimigos abatidos
             DrawText(TextFormat("INIMIGOS ABATIDOS: %d", totalEnemiesKilled), sectionX + 500, section1Y + 140, 24, RED);
             
-            // ===== SEÇÃO 2: ATRIBUTOS =====
-            int section2Y = section1Y + section1Height + 30; // Aumentado espaçamento de 20 para 30
+            int section2Y = section1Y + section1Height + 30;
             int section2Height = 380;
             
             Rectangle whiteBgSrc2 = { 0, 0, (float)whiteSquareUI.width, (float)whiteSquareUI.height };
@@ -1517,50 +1445,41 @@ int main() {
             int attrY = section2Y + 60;
             int attrSpacing = 50;
             
-            // Dano (centralizado)
             DrawText(TextFormat("DANO:"), sectionX + 30, attrY, 22, DARKGRAY);
             DrawText(TextFormat("Nivel %d", damageLvl), sectionX + 370, attrY, 22, DARKBLUE);
             DrawText(TextFormat("Valor: %d", currentDamage), sectionX + 600, attrY, 22, MAROON);
             attrY += attrSpacing;
             
-            // Velocidade de Recarga
             DrawText(TextFormat("VELOCIDADE DE RECARGA:"), sectionX + 30, attrY, 22, DARKGRAY);
             DrawText(TextFormat("Nivel %d", reloadSpeedLvl), sectionX + 450, attrY, 22, DARKBLUE);
             DrawText(TextFormat("%.1fs", currentReloadTime), sectionX + 650, attrY, 22, MAROON);
             attrY += attrSpacing;
             
-            // Velocidade da Bala
             DrawText(TextFormat("VELOCIDADE DA BALA:"), sectionX + 30, attrY, 22, DARKGRAY);
             DrawText(TextFormat("Nivel %d", bulletSpeedLvl), sectionX + 450, attrY, 22, DARKBLUE);
             DrawText(TextFormat("%.0f", currentBulletSpeed), sectionX + 650, attrY, 22, MAROON);
             attrY += attrSpacing;
             
-            // Capacidade de Munição
             DrawText(TextFormat("CAPACIDADE DE MUNICAO:"), sectionX + 30, attrY, 22, DARKGRAY);
             DrawText(TextFormat("Nivel %d", ammoCapacityLvl), sectionX + 450, attrY, 22, DARKBLUE);
             DrawText(TextFormat("%d", currentMaxAmmo), sectionX + 650, attrY, 22, MAROON);
             attrY += attrSpacing;
             
-            // Vida Máxima
             DrawText(TextFormat("VIDA MAXIMA:"), sectionX + 30, attrY, 22, DARKGRAY);
             DrawText(TextFormat("Nivel %d", healthLvl), sectionX + 450, attrY, 22, DARKBLUE);
             DrawText(TextFormat("%d", currentMaxHealth), sectionX + 650, attrY, 22, MAROON);
             attrY += attrSpacing;
             
-            // Velocidade de Disparo
             DrawText(TextFormat("VELOCIDADE DE DISPARO:"), sectionX + 30, attrY, 22, DARKGRAY);
             DrawText(TextFormat("Nivel %d", fireRateLvl), sectionX + 450, attrY, 22, DARKBLUE);
             DrawText(TextFormat("%.2fs", currentFireRateValue), sectionX + 650, attrY, 22, MAROON);
             
-            // Rodapé com instruções
             DrawRectangle(0, screenHeight - 80, screenWidth, 80, Fade(BLACK, 0.8f));
             DrawText("SETAS/WASD: Rolar | Q/BACKSPACE: Voltar ao Menu", 
                     screenWidth / 2 - 250, screenHeight - 50, 20, WHITE);
         }
         
-        // ===== RENDERIZAR CONFIGURAÇÕES =====
         else if (gameState == SETTINGS) {
-            // Desenhar background
             Rectangle bgSrc = { 0, 0, (float)bgDarkBrick.width, (float)bgDarkBrick.height };
             Rectangle bgDst = { 0, 0, (float)screenWidth, (float)screenHeight };
             DrawTexturePro(bgDarkBrick, bgSrc, bgDst, {0, 0}, 0.0f, WHITE);
@@ -1576,7 +1495,6 @@ int main() {
                                    (float)configLabel.width * titleScale, (float)configLabel.height * titleScale };
             DrawTexturePro(configLabel, titleSrc, titleDst, {0, 0}, 0.0f, WHITE);
             
-            // Área de conteúdo com scroll
             int contentStartY = 120;
             int baseY = contentStartY - settingsScrollOffset;
             int sectionWidth = 800;
@@ -1584,32 +1502,25 @@ int main() {
             float iconScale = 3.0f;
             float buttonScale = 2.5f;
             
-            // ===== SEÇÃO 1: DISPLAY =====
             int section1Y = baseY;
             int section1Height = 220;
             
-            // Background branco da seção
             Rectangle whiteBgSrc1 = { 0, 0, (float)whiteSquareUI.width, (float)whiteSquareUI.height };
             Rectangle whiteBgDst1 = { (float)sectionX, (float)section1Y, (float)sectionWidth, (float)section1Height };
             DrawTexturePro(whiteSquareUI, whiteBgSrc1, whiteBgDst1, {0, 0}, 0.0f, WHITE);
             
-            // Borda preta
             DrawRectangleLinesEx({ (float)sectionX, (float)section1Y, (float)sectionWidth, (float)section1Height }, 4, BLACK);
             
-            // Título da seção
             DrawText("DISPLAY", sectionX + sectionWidth / 2 - 60, section1Y + 15, 28, BLACK);
             
-            // Linha separadora
             DrawRectangle(sectionX + 20, section1Y + 55, sectionWidth - 40, 3, BLACK);
             
-            // Opção 0: Resolução
             int opt0Y = section1Y + 75;
             if (selectedSettingsOption == 0) {
                 DrawRectangleRec({ (float)sectionX + 20, (float)opt0Y - 5, (float)sectionWidth - 40, 50 }, Fade(YELLOW, 0.3f));
             }
             DrawText("Resolucao:", sectionX + 40, opt0Y + 10, 24, BLACK);
             
-            // Botão Minus
             Rectangle minusSrc = { 0, 0, (float)minusButton.width, (float)minusButton.height };
             Rectangle minusDst = { (float)(sectionX + 400), (float)opt0Y + 5, 
                                   (float)minusButton.width * buttonScale, (float)minusButton.height * buttonScale };
@@ -1617,13 +1528,11 @@ int main() {
             
             DrawText(resolutions[currentResolution], sectionX + 500, opt0Y + 10, 22, BLACK);
             
-            // Botão Plus
             Rectangle plusSrc = { 0, 0, (float)plusButton.width, (float)plusButton.height };
             Rectangle plusDst = { (float)(sectionX + 680), (float)opt0Y + 5, 
                                  (float)plusButton.width * buttonScale, (float)plusButton.height * buttonScale };
             DrawTexturePro(plusButton, plusSrc, plusDst, {0, 0}, 0.0f, selectedSettingsOption == 0 ? WHITE : GRAY);
             
-            // Opção 1: Fullscreen
             int opt1Y = opt0Y + 70;
             if (selectedSettingsOption == 1) {
                 DrawRectangleRec({ (float)sectionX + 20, (float)opt1Y - 5, (float)sectionWidth - 40, 50 }, Fade(YELLOW, 0.3f));
@@ -1649,29 +1558,23 @@ int main() {
                                   (float)plusButton.width * buttonScale, (float)plusButton.height * buttonScale };
             DrawTexturePro(plusButton, plusSrc1, plusDst1, {0, 0}, 0.0f, selectedSettingsOption == 1 ? WHITE : GRAY);
             
-            // ===== SEÇÃO 2: MUSICA =====
             int section2Y = section1Y + section1Height + 40;
             int section2Height = 220;
             
-            // Background branco
             Rectangle whiteBgSrc2 = { 0, 0, (float)whiteSquareUI.width, (float)whiteSquareUI.height };
             Rectangle whiteBgDst2 = { (float)sectionX, (float)section2Y, (float)sectionWidth, (float)section2Height };
             DrawTexturePro(whiteSquareUI, whiteBgSrc2, whiteBgDst2, {0, 0}, 0.0f, WHITE);
             
-            // Borda preta
             DrawRectangleLinesEx({ (float)sectionX, (float)section2Y, (float)sectionWidth, (float)section2Height }, 4, BLACK);
             
-            // Título da seção com ícone
             Rectangle musicIconSrc = { 0, 0, (float)musicLabel.width, (float)musicLabel.height };
             Rectangle musicIconDst = { (float)(sectionX + sectionWidth / 2 - 80), (float)(section2Y + 10), 
                                       (float)musicLabel.width * 2.0f, (float)musicLabel.height * 2.0f };
             DrawTexturePro(musicLabel, musicIconSrc, musicIconDst, {0, 0}, 0.0f, BLACK);
             DrawText("MUSICA", sectionX + sectionWidth / 2 - 10, section2Y + 18, 26, BLACK);
             
-            // Linha separadora
             DrawRectangle(sectionX + 20, section2Y + 55, sectionWidth - 40, 3, BLACK);
             
-            // Opção 2: Volume da Música
             int opt2Y = section2Y + 75;
             if (selectedSettingsOption == 2) {
                 DrawRectangleRec({ (float)sectionX + 20, (float)opt2Y - 5, (float)sectionWidth - 40, 50 }, Fade(YELLOW, 0.3f));
@@ -1688,7 +1591,6 @@ int main() {
                                    (float)minusButton.width * buttonScale, (float)minusButton.height * buttonScale };
             DrawTexturePro(minusButton, minusSrc2, minusDst2, {0, 0}, 0.0f, selectedSettingsOption == 2 ? WHITE : GRAY);
             
-            // Barra de volume com dots (sempre 6 slots, preenche com dotColor conforme nível)
             int dotStartX = sectionX + 490;
             float dotScale = 2.0f;
             int musicVolumeDots = musicVolumeLevel; // Usar níveis diretos (0 a 6)
@@ -1706,7 +1608,6 @@ int main() {
                                   (float)plusButton.width * buttonScale, (float)plusButton.height * buttonScale };
             DrawTexturePro(plusButton, plusSrc2, plusDst2, {0, 0}, 0.0f, selectedSettingsOption == 2 ? WHITE : GRAY);
             
-            // Opção 3: Mute Música
             int opt3Y = opt2Y + 70;
             if (selectedSettingsOption == 3) {
                 DrawRectangleRec({ (float)sectionX + 20, (float)opt3Y - 5, (float)sectionWidth - 40, 50 }, Fade(YELLOW, 0.3f));
@@ -1730,35 +1631,28 @@ int main() {
                                (float)musicMuteOption.width * 2.8f, (float)musicMuteOption.height * 2.8f };
             DrawTexturePro(musicMuteOption, mmSrc, mmDst, {0, 0}, 0.0f, WHITE);
             
-            // Botão Plus
             Rectangle plusSrc3 = { 0, 0, (float)plusButton.width, (float)plusButton.height };
             Rectangle plusDst3 = { (float)(sectionX + 680), (float)opt3Y + 5, 
                                   (float)plusButton.width * buttonScale, (float)plusButton.height * buttonScale };
             DrawTexturePro(plusButton, plusSrc3, plusDst3, {0, 0}, 0.0f, selectedSettingsOption == 3 ? WHITE : GRAY);
             
-            // ===== SEÇÃO 3: EFEITOS SONOROS =====
             int section3Y = section2Y + section2Height + 40;
             int section3Height = 220;
             
-            // Background branco
             Rectangle whiteBgSrc3 = { 0, 0, (float)whiteSquareUI.width, (float)whiteSquareUI.height };
             Rectangle whiteBgDst3 = { (float)sectionX, (float)section3Y, (float)sectionWidth, (float)section3Height };
             DrawTexturePro(whiteSquareUI, whiteBgSrc3, whiteBgDst3, {0, 0}, 0.0f, WHITE);
             
-            // Borda preta
             DrawRectangleLinesEx({ (float)sectionX, (float)section3Y, (float)sectionWidth, (float)section3Height }, 4, BLACK);
             
-            // Título da seção com ícone
             Rectangle soundIconSrc = { 0, 0, (float)soundLabel.width, (float)soundLabel.height };
             Rectangle soundIconDst = { (float)(sectionX + sectionWidth / 2 - 80), (float)(section3Y + 10), 
                                       (float)soundLabel.width * 2.0f, (float)soundLabel.height * 2.0f };
             DrawTexturePro(soundLabel, soundIconSrc, soundIconDst, {0, 0}, 0.0f, BLACK);
             DrawText("SFX", sectionX + sectionWidth / 2 + 10, section3Y + 18, 26, BLACK);
             
-            // Linha separadora
             DrawRectangle(sectionX + 20, section3Y + 55, sectionWidth - 40, 3, BLACK);
             
-            // Opção 4: Volume SFX
             int opt4Y = section3Y + 75;
             if (selectedSettingsOption == 4) {
                 DrawRectangleRec({ (float)sectionX + 20, (float)opt4Y - 5, (float)sectionWidth - 40, 50 }, Fade(YELLOW, 0.3f));
@@ -1769,14 +1663,12 @@ int main() {
             DrawTexturePro(volumeLabel, volIconSrc4, volIconDst4, {0, 0}, 0.0f, BLACK);
             DrawText(":", sectionX + 100, opt4Y + 10, 24, BLACK);
             
-            // Botão Minus
             Rectangle minusSrc4 = { 0, 0, (float)minusButton.width, (float)minusButton.height };
             Rectangle minusDst4 = { (float)(sectionX + 400), (float)opt4Y + 5, 
                                    (float)minusButton.width * buttonScale, (float)minusButton.height * buttonScale };
             DrawTexturePro(minusButton, minusSrc4, minusDst4, {0, 0}, 0.0f, selectedSettingsOption == 4 ? WHITE : GRAY);
             
-            // Barra de volume SFX (sempre 6 slots, preenche com dotColor conforme nível)
-            int sfxVolumeDots = sfxVolumeLevel; // Usar níveis diretos (0 a 6)
+            int sfxVolumeDots = sfxVolumeLevel;
             for (int i = 0; i < 6; i++) {
                 Texture2D dot = (i < sfxVolumeDots) ? dotColor : dotEmpty;
                 Rectangle dotSrc = { 0, 0, (float)dot.width, (float)dot.height };
@@ -1785,13 +1677,11 @@ int main() {
                 DrawTexturePro(dot, dotSrc, dotDst, {0, 0}, 0.0f, WHITE);
             }
             
-            // Botão Plus
             Rectangle plusSrc4 = { 0, 0, (float)plusButton.width, (float)plusButton.height };
             Rectangle plusDst4 = { (float)(sectionX + 680), (float)opt4Y + 5, 
                                   (float)plusButton.width * buttonScale, (float)plusButton.height * buttonScale };
             DrawTexturePro(plusButton, plusSrc4, plusDst4, {0, 0}, 0.0f, selectedSettingsOption == 4 ? WHITE : GRAY);
             
-            // Opção 5: Mute SFX
             int opt5Y = opt4Y + 70;
             if (selectedSettingsOption == 5) {
                 DrawRectangleRec({ (float)sectionX + 20, (float)opt5Y - 5, (float)sectionWidth - 40, 50 }, Fade(YELLOW, 0.3f));
@@ -1802,7 +1692,6 @@ int main() {
             DrawTexturePro(muteLabel, muteIconSrc5, muteIconDst5, {0, 0}, 0.0f, BLACK);
             DrawText(":", sectionX + 100, opt5Y + 10, 24, BLACK);
             
-            // Botão Minus
             Rectangle minusSrc5 = { 0, 0, (float)minusButton.width, (float)minusButton.height };
             Rectangle minusDst5 = { (float)(sectionX + 400), (float)opt5Y + 5, 
                                    (float)minusButton.width * buttonScale, (float)minusButton.height * buttonScale };
@@ -1815,30 +1704,23 @@ int main() {
                                (float)sfxMuteOption.width * 2.8f, (float)sfxMuteOption.height * 2.8f };
             DrawTexturePro(sfxMuteOption, smSrc, smDst, {0, 0}, 0.0f, WHITE);
             
-            // Botão Plus
             Rectangle plusSrc5 = { 0, 0, (float)plusButton.width, (float)plusButton.height };
             Rectangle plusDst5 = { (float)(sectionX + 680), (float)opt5Y + 5, 
                                   (float)plusButton.width * buttonScale, (float)plusButton.height * buttonScale };
             DrawTexturePro(plusButton, plusSrc5, plusDst5, {0, 0}, 0.0f, selectedSettingsOption == 5 ? WHITE : GRAY);
             
-            // Instruções fixas no rodapé
             DrawRectangle(0, screenHeight - 80, screenWidth, 80, Fade(BLACK, 0.8f));
             DrawText("SETAS: Navegar | ESQUERDA/DIREITA: Ajustar | Q/BACKSPACE: Voltar", 
                     screenWidth / 2 - 320, screenHeight - 50, 16, WHITE);
         }
         
-        // ===== RENDERIZAR MENU DE PAUSA =====
         else if (gameState == PAUSE_MENU) {
-            // Desenhar jogo com overlay escuro
             ClearBackground(DARKGRAY);
             
-            // Overlay semi-transparente
             DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.7f));
             
-            // Título
             DrawText("PAUSADO", screenWidth / 2 - 100, 100, 50, WHITE);
             
-            // Opções do menu de pausa
             const char* pauseOptions[] = { "CONTINUAR", "CONFIGURACOES", "SAIR DA PARTIDA", "SAIR DO JOGO" };
             int startY = 250;
             int spacing = 60;
@@ -1854,34 +1736,26 @@ int main() {
                 
                 DrawText(pauseOptions[i], screenWidth / 2 - textWidth / 2, startY + (i * spacing), fontSize, textColor);
             }
-            
-            // Instruções
             DrawText("Use SETAS para navegar | ENTER para selecionar | P para continuar", 
                     screenWidth / 2 - 320, screenHeight - 40, 16, LIGHTGRAY);
         }
         
-        // ===== RENDERIZAR INVENTÁRIO =====
         else if (gameState == INVENTORY) {
-            // Desenhar jogo de fundo com overlay escuro
             ClearBackground(DARKGRAY);
             DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.8f));
             
-            // Título
             DrawText("INVENTARIO", screenWidth / 2 - 110, 50, 40, WHITE);
             
-            // Área central do inventário
             int invWidth = 600;
             int invHeight = 400;
             int invX = (screenWidth - invWidth) / 2;
             int invY = 150;
             
-            // Background do inventário
             Rectangle invBgSrc = { 0, 0, (float)brownSquaresUI.width, (float)brownSquaresUI.height };
             Rectangle invBgDst = { (float)invX, (float)invY, (float)invWidth, (float)invHeight };
             DrawTexturePro(brownSquaresUI, invBgSrc, invBgDst, {0, 0}, 0.0f, WHITE);
             DrawRectangleLinesEx({ (float)invX, (float)invY, (float)invWidth, (float)invHeight }, 4, BLACK);
             
-            // Grid de 8 slots (2 linhas x 4 colunas) - Primeiros 4 slots são para munições
             int slotSize = 100;
             int slotSpacing = 20;
             int gridStartX = invX + (invWidth - (4 * slotSize + 3 * slotSpacing)) / 2;
@@ -1893,28 +1767,24 @@ int main() {
                     int slotX = gridStartX + col * (slotSize + slotSpacing);
                     int slotY = gridStartY + row * (slotSize + slotSpacing);
                     
-                    // Cor do slot baseado em seleção e equipamento
                     Color slotColor = LIGHTGRAY;
                     Color borderColor = DARKGRAY;
                     
                     if (slotIndex == selectedInventorySlot) {
-                        borderColor = YELLOW; // Slot selecionado
+                        borderColor = YELLOW;
                     }
                     
                     if (slotIndex == equippedAmmo) {
-                        borderColor = GREEN; // Munição equipada
+                        borderColor = GREEN;
                     }
                     
-                    // Desenhar slot (dotEmpty como fundo)
                     Rectangle slotSrc = { 0, 0, (float)dotEmpty.width, (float)dotEmpty.height };
                     Rectangle slotDst = { (float)slotX, (float)slotY, (float)slotSize, (float)slotSize };
                     DrawTexturePro(dotEmpty, slotSrc, slotDst, {0, 0}, 0.0f, slotColor);
                     DrawRectangleLinesEx({ (float)slotX, (float)slotY, (float)slotSize, (float)slotSize }, 3, borderColor);
                     
-                    // Número do slot
                     DrawText(TextFormat("%d", slotIndex + 1), slotX + 5, slotY + 5, 18, GRAY);
                     
-                    // Desenhar item se houver (primeiros 4 slots = munições)
                     if (slotIndex < 4 && playerAmmoInventory[slotIndex] != -1) {
                         int ammoItemIndex = playerAmmoInventory[slotIndex];
                         AmmoItem& item = ammoItems[ammoItemIndex];
@@ -1927,7 +1797,6 @@ int main() {
                         Vector2 itemOrigin = { itemDst.width / 2, itemDst.height / 2 };
                         DrawTexturePro(item.texture, itemSrc, itemDst, itemOrigin, 0.0f, WHITE);
                         
-                        // Mostrar indicador "E" se equipada
                         if (slotIndex == equippedAmmo) {
                             DrawText("E", slotX + slotSize - 20, slotY + slotSize - 20, 16, GREEN);
                         }
@@ -1935,7 +1804,6 @@ int main() {
                 }
             }
             
-            // Informações da munição selecionada
             if (selectedInventorySlot >= 0 && selectedInventorySlot < 4 && playerAmmoInventory[selectedInventorySlot] != -1) {
                 int ammoItemIndex = playerAmmoInventory[selectedInventorySlot];
                 AmmoItem& selectedItem = ammoItems[ammoItemIndex];
@@ -1953,21 +1821,16 @@ int main() {
                         screenWidth / 2 - 220, invY + invHeight + 30, 20, LIGHTGRAY);
             }
             
-            // Instruções
-            DrawText("SETAS para navegar | ENTER para equipar | ESC desequipa | I/B para fechar", 
+            DrawText("SETAS para navegar | ENTER para equipar | I/B para fechar", 
                     screenWidth / 2 - 330, screenHeight - 50, 18, WHITE);
         }
         
-        // ===== RENDERIZAR MENU DE CHEATS =====
         else if (gameState == CHEAT_MENU) {
-            // Desenhar fundo escuro
             ClearBackground(BLACK);
             DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.95f));
             
-            // Título
             DrawText("CHEAT MENU", screenWidth / 2 - 100, 100, 40, RED);
             
-            // Opções
             const char* cheatOptions[] = {
                 "Add 100,000 Coins",
                 "Spawn Boss"
@@ -1987,56 +1850,42 @@ int main() {
                         fontSize, 
                         textColor);
                 
-                // Indicador de seleção
                 if (i == selectedCheatOption) {
                     DrawText(">", screenWidth / 2 - textWidth / 2 - 40, startY + (i * spacing), 30, YELLOW);
                 }
             }
             
-            // Instruções
-            DrawText("SETAS para navegar | ENTER para ativar | ESC/HOME para fechar", 
+            DrawText("SETAS para navegar | ENTER para confirmar | HOME para fechar", 
                     screenWidth / 2 - 300, screenHeight - 80, 18, GRAY);
         }
         
-        // ===== RENDERIZAR JOGO =====
         else if (gameState == PLAYING) {
             if (!gameOver) {
-            // Iniciar modo de câmera para zoom
             BeginMode2D(camera);
             
-            // Desenhar chão do mapa
             Texture2D currentGround = isBossWave ? groundBossTexture : groundTexture;
-            // Desenhar o chão repetido para cobrir área visível
             for (int x = -5; x <= 5; x++) {
                 for (int y = -5; y <= 5; y++) {
                     DrawTexture(currentGround, x * currentGround.width, y * currentGround.height, WHITE);
                 }
             }
             
-            // Desenhar jogador (sprite com rotação)
             Rectangle sourceRec = { 0, 0, (float)player.texture.width, (float)player.texture.height };
             Rectangle destRec = { player.position.x, player.position.y, (float)player.texture.width * 0.8f, (float)player.texture.height * 0.8f };
             Vector2 origin = { destRec.width / 2, destRec.height / 2 };
             DrawTexturePro(player.texture, sourceRec, destRec, origin, player.rotation, WHITE);
             
-            // Desenhar círculo de colisão (debug - opcional)
-            // DrawCircleLines((int)player.position.x, (int)player.position.y, player.radius, BLUE);
-            
-            // Desenhar projéteis
             for (const auto& proj : projectiles) {
                 if (proj.active) {
-                    // Desenhar sprite da bala
                     Rectangle projSource = { 0, 0, (float)proj.texture.width, (float)proj.texture.height };
                     Rectangle projDest = { proj.position.x, proj.position.y, (float)proj.texture.width * 0.8f, (float)proj.texture.height * 0.5f };
                     Vector2 projOrigin = { projDest.width / 2, projDest.height / 2 };
                     DrawTexturePro(proj.texture, projSource, projDest, projOrigin, proj.rotation, WHITE);
                 }
             }
-            
-            // Desenhar pickups (itens coletáveis)
             for (const auto& pickup : pickups) {
                 if (pickup.active) {
-                    float scale = 1.5f; // Aumentado de 0.8f para 1.5f
+                    float scale = 1.5f;
                     Rectangle pickupSource = { 0, 0, (float)pickup.texture.width, (float)pickup.texture.height };
                     Rectangle pickupDest = { pickup.position.x, pickup.position.y, 
                                             pickup.texture.width * scale, pickup.texture.height * scale };
@@ -2045,7 +1894,6 @@ int main() {
                 }
             }
             
-            // Desenhar baús
             for (const auto& chest : chests) {
                 if (chest.active) {
                     float chestScale = 1.2f;
@@ -2055,7 +1903,6 @@ int main() {
                     Vector2 chestOrigin = { chestDest.width / 2, chestDest.height / 2 };
                     DrawTexturePro(chest.texture, chestSource, chestDest, chestOrigin, 0.0f, WHITE);
                     
-                    // Mostrar indicador de interação quando próximo e fechado
                     float distToChest = sqrt(
                         (chest.position.x - player.position.x) * (chest.position.x - player.position.x) +
                         (chest.position.y - player.position.y) * (chest.position.y - player.position.y)
@@ -2067,21 +1914,13 @@ int main() {
                                 16, YELLOW);
                     }
                     
-                    // Mostrar item revelado quando baú está aberto
                     if (chest.state == CHEST_OPENED && chest.itemRevealed) {
                         int itemIndex = (int)chest.itemDrop;
                         AmmoItem& item = ammoItems[itemIndex];
                         
-                        // Verificar se jogador já tinha o item
                         bool isDuplicate = false;
                         int coinReward = 50 + (itemIndex * 35);
                         
-                        // Verificar pela contagem antes de adicionar (se animTimer acabou de passar 0.6s)
-                        // Como já foi adicionado, verificar pela quantidade de moedas ou criar flag
-                        // Solução: verificar se playerAmmoInventory[itemIndex] estava true ANTES
-                        // Mas como já modificamos, vamos usar lógica inversa
-                        
-                        // Desenhar sprite do item acima do baú
                         float itemY = chest.position.y - chest.radius - 80;
                         float itemScale = 1.0f;
                         Rectangle itemSource = { 0, 0, (float)item.texture.width, (float)item.texture.height };
@@ -2090,7 +1929,6 @@ int main() {
                         Vector2 itemOrigin = { itemDest.width / 2, itemDest.height / 2 };
                         DrawTexturePro(item.texture, itemSource, itemDest, itemOrigin, 0.0f, WHITE);
                         
-                        // Desenhar nome do item com cor correspondente
                         const char* displayText = item.name;
                         int textWidth = MeasureText(displayText, 18);
                         DrawText(displayText, 
@@ -2101,10 +1939,8 @@ int main() {
                 }
             }
             
-            // Desenhar inimigos
             for (const auto& enemy : enemies) {
                 if (enemy.active) {
-                    // Desenhar sprite do inimigo
                     float scale = enemy.isBoss ? 1.2f : 0.7f;
                     Rectangle enemySource = { 0, 0, (float)enemy.texture.width, (float)enemy.texture.height };
                     Rectangle enemyDest = { enemy.position.x, enemy.position.y, enemy.texture.width * scale, enemy.texture.height * scale };
@@ -2112,10 +1948,8 @@ int main() {
                     Color tint = enemy.isBoss ? PURPLE : RED;
                     DrawTexturePro(enemy.texture, enemySource, enemyDest, enemyOrigin, enemy.rotation, tint);
                     
-                    // Desenhar barra de vida para todos os inimigos (sprites)
                     float healthPercent = (float)enemy.health / (float)enemy.maxHealth;
                     
-                    // Selecionar sprite baseado na porcentagem de vida
                     Texture2D currentEnemyLifeSprite;
                     if (healthPercent >= 0.8f) {
                         currentEnemyLifeSprite = enemyLifeFull;
@@ -2129,27 +1963,23 @@ int main() {
                         currentEnemyLifeSprite = enemyLifeEmpty;
                     }
                     
-                    // Boss tem barra maior
                     if (enemy.isBoss) {
-                        float bossBarScale = 3.0f; // Aumentado de 2.0 para 3.0 para comportar texto
+                        float bossBarScale = 3.0f;
                         float barWidth = currentEnemyLifeSprite.width * bossBarScale;
                         float barHeight = currentEnemyLifeSprite.height * bossBarScale;
                         
                         Vector2 barPos = { enemy.position.x - (barWidth / 2.0f), 
-                                          enemy.position.y - enemy.radius - 60 }; // Ajustado para cima
+                                          enemy.position.y - enemy.radius - 60 };
                         
-                        // Desenhar sprite de vida do boss (aumentado)
                         Rectangle bossLifeSrc = { 0, 0, (float)currentEnemyLifeSprite.width, (float)currentEnemyLifeSprite.height };
                         Rectangle bossLifeDst = { barPos.x, barPos.y, barWidth, barHeight };
                         DrawTexturePro(currentEnemyLifeSprite, bossLifeSrc, bossLifeDst, {0, 0}, 0.0f, WHITE);
                         
-                        // Texto de HP dentro do sprite (centralizado, tamanho maior)
                         const char* hpText = TextFormat("%d/%d", enemy.health, enemy.maxHealth);
                         int textWidth = MeasureText(hpText, 22);
                         DrawText(hpText, (int)(barPos.x + (barWidth - textWidth) / 2), 
                                 (int)(barPos.y + (barHeight - 22) / 2), 22, BLACK);
                     } else {
-                        // Inimigos normais - barra padrão
                         Vector2 barPos = { enemy.position.x - (currentEnemyLifeSprite.width / 2.0f), 
                                           enemy.position.y - enemy.radius - 25 };
                         DrawTexture(currentEnemyLifeSprite, (int)barPos.x, (int)barPos.y, WHITE);
@@ -2157,7 +1987,6 @@ int main() {
                 }
             }
             
-            // Desenhar mira do mouse (em coordenadas do mundo)
             Vector2 mousePos = GetMousePosition();
             Vector2 worldMousePos = GetScreenToWorld2D(mousePos, camera);
             DrawCircleLines((int)worldMousePos.x, (int)worldMousePos.y, 10, GREEN);
@@ -2166,13 +1995,10 @@ int main() {
             
             EndMode2D();
             
-            // Desenhar UI (fora da câmera para permanecer fixo na tela)
-            // Barra de vida do jogador (UI com sprites)
             float playerHealthPercent = (float)player.health / (float)player.maxHealth;
             int uiBarX = 20;
             int uiBarY = 20;
             
-            // Selecionar sprite baseado na porcentagem de vida
             Texture2D currentPlayerLifeSprite;
             if (playerHealthPercent >= 0.8f) {
                 currentPlayerLifeSprite = playerLifeFull;
@@ -2186,14 +2012,12 @@ int main() {
                 currentPlayerLifeSprite = playerLifeEmpty;
             }
             
-            // Desenhar sprite de vida do jogador (aumentado 5x)
             float lifeScale = 5.0f;
             Rectangle lifeSourceRec = { 0, 0, (float)currentPlayerLifeSprite.width, (float)currentPlayerLifeSprite.height };
             Rectangle lifeDestRec = { (float)uiBarX, (float)uiBarY, (float)currentPlayerLifeSprite.width * lifeScale, (float)currentPlayerLifeSprite.height * lifeScale };
             Vector2 lifeOrigin = { 0, 0 };
             DrawTexturePro(currentPlayerLifeSprite, lifeSourceRec, lifeDestRec, lifeOrigin, 0.0f, WHITE);
             
-            // Texto de HP dentro do sprite (centralizado)
             const char* hpText = TextFormat("%d/%d", player.health, player.maxHealth);
             int hpTextWidth = MeasureText(hpText, 20);
             DrawText(hpText, 
@@ -2205,11 +2029,9 @@ int main() {
                     uiBarY + (int)(currentPlayerLifeSprite.height * lifeScale / 2) - 11, 
                     20, WHITE);
             
-            // HUD de munição (sprites)
             int ammoStartX = uiBarX;
             int ammoStartY = uiBarY + (int)(currentPlayerLifeSprite.height * 5.0f) + 10;
             
-            // Selecionar sprite baseado na quantidade de munição
             float ammoPercent = (float)player.ammo / (float)player.maxAmmo;
             Texture2D currentAmmoSprite;
             
@@ -2227,42 +2049,36 @@ int main() {
                 currentAmmoSprite = bulletsEmpty;
             }
             
-            // Desenhar sprite de munição (aumentado 3x)
             float ammoScale = 3.0f;
             Rectangle ammoSourceRec = { 0, 0, (float)currentAmmoSprite.width, (float)currentAmmoSprite.height };
             Rectangle ammoDestRec = { (float)ammoStartX, (float)ammoStartY, (float)currentAmmoSprite.width * ammoScale, (float)currentAmmoSprite.height * ammoScale };
             Vector2 ammoOrigin = { 0, 0 };
             DrawTexturePro(currentAmmoSprite, ammoSourceRec, ammoDestRec, ammoOrigin, 0.0f, WHITE);
             
-            // Texto de munição ao lado do sprite
             DrawText(TextFormat("%d/%d", player.ammo, player.maxAmmo), 
                     ammoStartX + (int)(currentAmmoSprite.width * ammoScale) + 10, ammoStartY + (int)(currentAmmoSprite.height * ammoScale / 2) - 9, 18, WHITE);
             
-            // Indicador de recarga (posicionado abaixo da UI de munição)
             if (isReloading) {
                 float reloadPercent = (reloadTimer / reloadDuration) * 100.0f;
                 DrawText(TextFormat("RECARREGANDO... %.0f%%", reloadPercent), 
                         ammoStartX, ammoStartY + (int)(currentAmmoSprite.height * 3.0f) + 5, 14, YELLOW);
             }
             
-            // Desenhar HUD de pontuação e informações
             int scoreStartY = ammoStartY + (int)(currentAmmoSprite.height * 3.0f) + 30;
             DrawText(TextFormat("Score: %d", score), 20, scoreStartY, 20, WHITE);
             DrawText(TextFormat("Wave: %d %s", wave, isBossWave ? "(BOSS!)" : ""), 20, scoreStartY + 25, 20, isBossWave ? PURPLE : WHITE);
             DrawText(TextFormat("Kills: %d/%d", enemiesKilled, isBossWave ? 1 : enemiesPerWave), 20, scoreStartY + 50, 20, WHITE);
             
-            // HUD de nível, XP e moedas (lado direito superior, movido para baixo)
             int infoX = screenWidth - 200;
-            int infoY = 35; // Aumentado de 20 para 35
+            int infoY = 35;
             DrawText(TextFormat("NIVEL: %d", player.level), infoX, infoY, 22, SKYBLUE);
             DrawText(TextFormat("XP: %d/%d", player.xp, player.xpToNextLevel), infoX, infoY + 25, 18, LIGHTGRAY);
-            DrawCircle(infoX + 10, infoY + 58, 8, GOLD); // Ícone de moeda
+            DrawCircle(infoX + 10, infoY + 58, 8, GOLD);
             DrawText(TextFormat("x%d", player.coins), infoX + 25, infoY + 50, 20, YELLOW);
             
             DrawText("WASD/Arrows: Move | Mouse: Aim | Click: Shoot | R: Reload | I/B: Inventario", 10, screenHeight - 30, 16, LIGHTGRAY);
             DrawText("P: Menu", screenWidth - 80, 10, 16, LIGHTGRAY);
         } else {
-            // Tela de Game Over - atualizar top score
             if (score > topScore) {
                 topScore = score;
             }
@@ -2278,7 +2094,6 @@ int main() {
         EndDrawing();
     }
     
-    // Descarregar texturas
     UnloadTexture(playerTexture);
     if (playerReloadTexture.id != 0) UnloadTexture(playerReloadTexture);
     UnloadTexture(enemyTexture);
@@ -2291,7 +2106,6 @@ int main() {
     UnloadTexture(bgLightBrick);
     UnloadTexture(bgDarkBrick);
     
-    // Descarregar UI sprites
     UnloadTexture(playerLifeFull);
     UnloadTexture(playerLifeAlmostFull);
     UnloadTexture(playerLifeHalf);
@@ -2309,7 +2123,6 @@ int main() {
     UnloadTexture(bulletsEnd);
     UnloadTexture(bulletsEmpty);
     
-    // Descarregar UI sprites de Settings
     UnloadTexture(configLabel);
     UnloadTexture(musicLabel);
     UnloadTexture(soundLabel);
@@ -2325,24 +2138,20 @@ int main() {
     UnloadTexture(minusButton);
     UnloadTexture(plusButton);
     
-    // Descarregar texturas de munições especiais
     UnloadTexture(waterBulletTexture);
     UnloadTexture(fireBulletTexture);
     UnloadTexture(acidBulletTexture);
     UnloadTexture(magicBulletTexture);
     
-    // Descarregar texturas de baú
     for (int i = 0; i < 6; i++) {
         UnloadTexture(chestTextures[i]);
     }
     
-    // Descarregar músicas
     if (currentMusic != nullptr) StopMusicStream(*currentMusic);
     UnloadMusicStream(menuMusic);
     UnloadMusicStream(levelMusic);
     UnloadMusicStream(bossMusic);
     
-    // Descarregar sons SFX
     UnloadSound(defaultShootSound);
     UnloadSound(dmgSound);
     UnloadSound(deathSound);
