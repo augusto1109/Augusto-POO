@@ -169,3 +169,4 @@ int ProdutoDAO::contarProdutos()
     filtros << "*.json";
     return dir.entryInfoList(filtros, QDir::Files).size();
 }
+
